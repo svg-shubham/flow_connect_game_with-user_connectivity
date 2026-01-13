@@ -1,0 +1,58 @@
+{% extends 'base.html' %} 
+{% load static %} 
+
+{% block title %}Play - Flow Connect{% endblock %} 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/game/home.css' %}" />
+<style>
+    /* <a> tags ki default styling hatane ke liye */
+    .level-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: transform 0.2s;
+    }
+    .level-link:hover {
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %} 
+
+{% block content %}
+<div class="game-main-area">
+    <div id="difficulty-area" class="difficulty-selection">
+        
+        <a href="{% url 'game:level_list' size=5 %}" class="level-link">
+            <div class="level-sticker beginner">
+                <div class="sticker-icon">🌱</div>
+                <div class="sticker-info">
+                    <h3>Beginner</h3>
+                    <span>5 x 5 Grid</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'game:level_list' size=6 %}" class="level-link">
+            <div class="level-sticker medium">
+                <div class="sticker-icon">⚡</div>
+                <div class="sticker-info">
+                    <h3>Medium</h3>
+                    <span>6 x 6 Grid</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'game:level_list' size=8 %}" class="level-link">
+            <div class="level-sticker hard">
+                <div class="sticker-icon">🔥</div>
+                <div class="sticker-info">
+                    <h3>Hard</h3>
+                    <span>8 x 8 Grid</span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</div>
+{% endblock %}

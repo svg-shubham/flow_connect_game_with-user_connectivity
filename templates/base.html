@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Flow Connect Pro{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="nav-logo">Flow<span>Connect</span></a>
+            </div>
+            <ul class="sidebar-links">
+                <li><a href="/">🏠 Home</a></li>
+                <li class="sidebar-dropdown">
+                    <span class="dropdown-title">🎮 Difficulty</span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" onclick="changeDifficulty(5)">Beginner (5x5)</a></li>
+                        <li><a href="#" onclick="changeDifficulty(6)">Intermediate (6x6)</a></li>
+                        <li><a href="#" onclick="changeDifficulty(8)">Pro (8x8)</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">🏆 Leaderboard</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-layout">
+            <header class="top-nav">
+                <div class="status-bar">
+                    Status: <span id="game-status">Ready</span>
+                </div>
+                
+                <div class="user-profile">
+                    {% if user.is_authenticated %}
+                        👤 Welcome, {{ user.username }} | 
+                        <a href="{% url 'user:logout' %}" style="color: #ff4b2b; text-decoration: none;">Logout</a>
+                    {% else %}
+                        <a href="{% url 'user:login' %}" class="btn-action" style="padding: 5px 15px;">Login</a>
+                        <a href="{% url 'user:signup' %}" class="btn-action" style="padding: 5px 15px;">Signup</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <main class="content-body">
+                <div class="game-container-flex">
+                    
+                    <div class="game-board-area">
+                        {% block content %}{% endblock %}
+                    </div>
+
+                    <div class="game-options-panel">
+                        {% block side_panel %}
+                        <div class="option-card advertisement">
+                            <h3>Sponsored</h3>
+                            <div style="background: #222; height: 200px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px dashed #555;">
+                                <p style="color: #666;">Ad Space Available</p>
+                            </div>
+                        </div>
+                        
+                        <div class="option-card advertisement">
+                            <p style="font-size: 0.8rem; color: #888;">Install our Mobile App for more levels!</p>
+                            <button class="btn-action">Download Now</button>
+                        </div>
+                        {% endblock %}
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

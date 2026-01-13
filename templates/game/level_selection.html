@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select Level - {{ difficulty_label }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/game/home.css' %}" />
+<style>
+    /* Numbers grid setup */
+    .numbers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+        gap: 15px;
+        padding: 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .level-number-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        color: black;
+        text-decoration: none;
+        height: 75px;
+        border-radius: 15px;
+        font-weight: 700;
+        font-size: 1.3rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid #3d3d3d;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .level-number-box:hover {
+        background: white;
+        border-color: #00d2ff;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 210, 255, 0.2);
+    }
+
+    .selection-header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
+    }
+
+    .back-btn {
+        background: #333;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .back-btn:hover {
+        background: #444;
+        color: #00d2ff;
+    }
+
+    /* Advance Pagination Styling */
+    .pagination-wrapper {
+        margin-top: 50px;
+        padding-bottom: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pg-btn {
+        background: #222;
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        border: 1px solid #444;
+        transition: 0.3s;
+    }
+
+    .pg-btn:hover {
+        background: #00d2ff;
+        color: #000;
+        border-color: #00d2ff;
+    }
+
+    .pg-current {
+        background: #00d2ff;
+        color: #000;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+
+    .pg-info {
+        color: #888;
+        font-size: 0.85rem;
+    }
+    .level-number-box {
+    position: relative; /* Badge ko box ke andar set karne ke liye */
+    transition: all 0.3s ease;
+}
+
+/* Jo levels complete ho chuke hain unka style */
+.level-number-box.is-completed {
+    border-color: #2ecc71 !important; /* Green border */
+    background: rgba(46, 204, 113, 0.1); /* Halka green background */
+}
+
+/* Tickmark badge ka style */
+.tick-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-main-area">
+    <div class="level-numbers-container">
+        
+        <div class="selection-header">
+            <h1 style="font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 5px;">{{ difficulty_label }}</h1>
+            <p style="color: #888; margin-bottom: 20px;">Mode: {{ size }}x{{ size }} Grid</p>
+            <a href="{% url 'game:home' %}" class="back-btn">← Back to Modes</a>
+        </div>
+
+        <div class="numbers-grid">
+            {% for lvl in levels %}
+                <a href="{% url 'game:play_level' size=lvl.grid_size level=lvl.level_number %}" 
+                class="level-number-box {% if lvl.level_number in completed_levels %}is-completed{% endif %}">
+                    
+                    {{ lvl.level_number }}
+
+                    {% if lvl.level_number in completed_levels %}
+                        <span class="tick-badge">✅</span>
+                    {% endif %}
+                </a>
+            {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 50px;">
+                    <h2>Levels loading...</h2>
+                    <p>Bhai, database mein levels check karein.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if levels.paginator.num_pages > 1 %}
+        <div class="pagination-wrapper">
+            <div class="pagination-controls">
+                {% if levels.has_previous %}
+                    <a href="?page=1" class="pg-btn">First</a>
+                    <a href="?page={{ levels.previous_page_number }}" class="pg-btn">Prev</a>
+                {% endif %}
+
+                <span class="pg-current">{{ levels.number }}</span>
+
+                {% if levels.has_next %}
+                    <a href="?page={{ levels.next_page_number }}" class="pg-btn">Next</a>
+                    <a href="?page={{ levels.paginator.num_pages }}" class="pg-btn">Last</a>
+                {% endif %}
+            </div>
+            <div class="pg-info">
+                Showing Page {{ levels.number }} of {{ levels.paginator.num_pages }}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

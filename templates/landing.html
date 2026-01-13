@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Connect - Logic Puzzle Game</title>
+    <link rel="stylesheet" href="{% static 'css/game/landing_style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-container">
+        <header class="hero-section">
+            <h1 class="hero-title">Flow Connect</h1>
+            <p class="hero-subtitle">Master the Art of Pathfinding. Can you fill the board?</p>
+            <a href="{% url 'game:play_game' %}" class="play-button">Play Now!</a>
+        </header>
+
+        <section class="features-section">
+            <div class="feature-card">
+                <img src="{% static 'images/landing/puzzle.png' %}" alt="Logic Puzzle Icon">
+                <h3>Mind-Bending Puzzles</h3>
+                <p>Engage your brain with challenging grid-based logic puzzles.</p>
+            </div>
+            <div class="feature-card">
+                <img src="{% static 'images/landing/connect.jpg' %}" alt="Connect Icon">
+                <h3>Seamless Pathfinding</h3>
+                <p>Connect matching dots without overlapping paths to win.</p>
+            </div>
+            <div class="feature-card">
+                <img src="{% static 'images/landing/any_device.png' %}" alt="Responsive Design Icon">
+                <h3>Any Device, Anywhere</h3>
+                <p>Enjoy the game on your desktop, tablet, or mobile phone.</p>
+            </div>
+        </section>
+
+        <footer class="footer-section">
+            <p>&copy; 2026 Flow Connect. All rights reserved. Developed by svg-shubham.</p>
+        </footer>
+    </div>
+</body>
+</html>

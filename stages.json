@@ -1,0 +1,54 @@
+{
+  "stage_1":{
+        "34": "yellow", "43": "yellow",
+        "21": "orange", "26": "orange",
+        "42": "blue",   "55": "blue",
+        "44": "green",  "64": "green",
+        "36": "red",    "63": "red"
+  },
+  "stage_2":{
+        "15": "yellow", "66": "yellow",
+        "14": "orange", "43": "orange",
+        "44": "blue",   "65": "blue",
+        "63": "green",  "22": "green",
+        "62": "red",    "23": "red",
+        "46": "pink",   "16": "pink"
+  },
+  "stage_3":{
+        "26": "yellow", "55": "yellow",
+        "12": "orange", "43": "orange",
+        "42": "blue",   "54": "blue",
+        "65": "green",  "35": "green",
+        "41": "red",    "64": "red",
+        "11": "pink",   "32": "pink",
+        "13": "brown",  "16": "brown"
+  },
+  
+  "stage_4":{},
+  "stage_5":{},
+  "stage_6":{},
+  "stage_7":{},
+  "stage_8":{},
+  "stage_9":{},
+  "stage_10":{},
+  "stage_11":{},
+  "stage_12":{},
+  "stage_13":{},
+  "stage_14":{},
+  "stage_15":{},
+  "stage_16":{},
+  "stage_17":{},
+  "stage_18":{},
+  "stage_19":{},
+  "stage_20":{},
+  "stage_21":{},
+  "stage_22":{},
+  "stage_23":{},
+  "stage_24":{},
+  "stage_25":{},
+  "stage_26":{},
+  "stage_27":{},
+  "stage_28":{},
+  "stage_29":{},
+  "stage_30":{}
+}

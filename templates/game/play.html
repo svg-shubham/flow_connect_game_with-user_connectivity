@@ -1,0 +1,635 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Play - Level {{
+level }}{% endblock %} {% block extra_css %}
+<style>
+  /* Aapka exact CSS jo aapne diya tha */
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Poori screen ki height lega */
+    background-color: #121212; /* Deep Dark Theme */
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #060606; /* Saara text white rahega */
+    overflow-x: hidden;
+  }
+
+  /* 2. Main Container (Placement Fix) */
+  .game-main-area {
+    flex: 1; /* Nav bar ke baad bachi hui poori jagah lega */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Grid ko page ke ekdum beech mein layega */
+    width: 100%;
+    padding: 40px 20px;
+    box-sizing: border-box;
+  }
+
+  /* 3. Header Styling */
+  .game-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .game-header h2 {
+    font-size: 2.5rem;
+    color: #00d2ff; /* Glowy Blue color level info ke liye */
+    margin: 0 0 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+  }
+
+  /* 4. Grid Container (The Logic Center) */
+  #grid-container {
+    display: grid;
+    /* Django {{ size }} ke hisab se columns set honge */
+    grid-template-columns: repeat({{size}}, 75px);
+    grid-template-rows: repeat({{size}}, 75px);
+    gap: 6px; /* Cells ke beech ka gap */
+    padding: 15px;
+    background-color: #252525; /* Dark frame */
+    border-radius: 15px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    border: 3px solid #333;
+  }
+
+  /* 5. Cell Styling */
+  .cell {
+    width: 75px;
+    height: 75px;
+    background-color: #333; /* Thoda light grey cell taaki path dikhe */
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .cell:hover {
+    background-color: #444;
+    transform: scale(1.03);
+    z-index: 10;
+  }
+
+  /* 6. Dot Styling */
+  .dot {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    pointer-events: none; /* Drawing ko smooth banane ke liye click block nahi karega */
+  }
+
+  /* 7. Action Buttons (Back Button) */
+  .back-btn {
+    margin-top: 30px;
+    text-decoration: none;
+    color: #0c0b0b;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 20px rgba(110, 142, 251, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .back-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(110, 142, 251, 0.4);
+    filter: brightness(1.1);
+  }
+
+  /* 8. Responsive Fixes for Small Screens */
+  @media (max-width: 500px) {
+    #grid-container {
+      grid-template-columns: repeat({{size}}, 55px);
+      grid-template-rows: repeat({{size}}, 55px);
+      gap: 4px;
+      padding: 10px;
+    }
+    .cell {
+      width: 55px;
+      height: 55px;
+    }
+    .dot {
+      height: 35px;
+      width: 35px;
+    }
+    .game-header h2 {
+      font-size: 1.8rem;
+    }
+  }
+
+  /* Modal Overlay Background */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Dark background with transparency */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px); /* Background blur effect */
+  }
+
+  /* Pamphlet/Card Design */
+  .modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    color: #333;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  }
+
+  @keyframes popIn {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .emoji-crown {
+    font-size: 50px;
+    margin-bottom: 10px;
+  }
+
+  .modal-content h1 {
+    color: #2ecc71;
+    margin-bottom: 10px;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+  }
+
+  /* Buttons Styling */
+  .btn-next,
+  .btn-replay,
+  .btn-home {
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .btn-next {
+    background: #2ecc71;
+    color: white;
+  }
+  .btn-next:hover {
+    background: #27ae60;
+  }
+
+  .btn-replay {
+    background: #f1c40f;
+    color: #333;
+  }
+  .btn-replay:hover {
+    background: #f39c12;
+  }
+
+  .btn-home {
+    display: block;
+    margin-top: 15px;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  /* Main Wrapper */
+  .game-layout-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 20px;
+    perspective: 1000px;
+  }
+
+  /* Glassmorphism Effect */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 25px;
+    width: 250px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+  }
+
+  .glass-card h3 {
+    color: #00d2ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+    padding-bottom: 10px;
+  }
+
+  /* Stats Row */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .stat-row span {
+    color: black;
+    font-size: 0.9rem;
+  }
+
+  .stat-row b {
+    color: black;
+    font-size: 1.4rem;
+    font-family: "Courier New", Courier, monospace; /* Digital look */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Buttons Styling */
+  .btn-action {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-action.reset:hover {
+    background: #ff4b2b;
+    box-shadow: 0 0 20px rgba(255, 75, 43, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-action.undo:hover {
+    background: #00d2ff;
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Grid Container Shadow */
+  #grid-container {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    border: 5px solid #222;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="game-main-area">
+  <div class="game-header">
+    <h2>{{ size }}x{{ size }} Grid - Level {{ level }}</h2>
+    <a href="{% url 'game:home' %}" class="back-btn">← Back to Levels</a>
+    <a class="back-btn" onclick="checkWin()">Submit</a>
+    <a class="back-btn" onclick="location.reload()"> Reset Game</a>
+  </div>
+  <div
+    class="game-stats"
+    style="color: blue; margin-bottom: 10px; font-size: 1.2rem"
+  >
+    <div class="stat-row">
+      <span>Moves: <b id="move-count">0</b></span> |
+      <span>Time: <b id="timer">00:00</b></span>
+    </div>
+  </div>
+  <div class="container" style="display: flex; margin-right: 50px">
+    <div id="grid-container"></div>
+  </div>
+  <div id="win-modal" class="modal-overlay" style="display: none">
+    <div class="modal-content">
+      <div class="emoji-crown">👑</div>
+      <h1>Mubarak Ho Bhai!</h1>
+      <p>Aapne Level {{ level }} ko poora kar diya hai.</p>
+
+      <div class="modal-buttons">
+        <a href="/play_game/{{ size }}/{{ level|add:1 }}" class="btn-next"
+          >Next Level</a
+        >
+        <button onclick="location.reload()" class="btn-replay">Replay</button>
+      </div>
+
+      <a href="{% url 'game:home' %}" class="btn-home">Home</a>
+    </div>
+  </div>
+  {% endblock %} {% block extra_js %}
+  <script>
+        // 1. Backend Se Aaya Hua Data
+        const gridSize = {{ size }};
+        const backendDots = JSON.parse('{{ dot_config_json|safe }}');
+
+        // 2. Aapke Saare Variables
+        let gridData = {};
+        let selectedColor = null;
+        let startCellId = null;
+        let lastHoveredId = null;
+        let isDrawing = false;
+        let isTargetReached = false;
+        let moves = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let totalSeconds = 0;
+        let isTimerRunning = false;
+        
+
+        const pathColors = {
+            "yellow": "rgba(255, 255, 0, 0.3)",
+            "orange": "rgba(255, 165, 0, 0.3)",
+            "blue":   "rgba(0, 0, 255, 0.3)",
+            "green":  "rgba(0, 128, 0, 0.3)",
+            "red":    "rgba(255, 0, 0, 0.3)",
+            "pink":   "rgba(253, 130, 200, 0.32)",
+            "brown":"rgba(79, 3, 3, 0.74)",
+            "purple":"rgba(220, 32, 210, 0.76)",
+            "cyan":"rgba(19, 153, 177, 0.76)",
+            "magenta":"rgba(253,61,181, 0.76)",
+            "lime":"rgba(127, 186, 98, 0.93)"
+        };
+
+        // 3. Aapka Exact generateGrid Function
+        function generateGrid(rows, cols) {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+            gridData = {};
+            for (let r = 1; r <= rows; r++) {
+                for (let c = 1; c <= cols; c++) {
+                    const cellId = `${r}${c}`;
+                    gridData[cellId] = { id: cellId, color: "", hasDot: false };
+                    const cell = document.createElement('div');
+                    cell.id = cellId;
+                    cell.className = `cell cell_${cellId}`;
+
+                    // Aapke click aur hover events
+                    cell.addEventListener('click', () => handleCellClick(cellId));
+                    cell.addEventListener('mouseenter', () => handleHover(cellId));
+
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        // 4. Aapka Exact checkWin Function (Dynamic size ke saath)
+        function checkWin() {
+        let filledCells = 0;
+        let completedPaths = 0;
+        const totalCells = gridSize * gridSize;
+        const colors = [...new Set(Object.values(backendDots))];
+        const targetPaths = colors.length;
+        const currentLevelNumber = parseInt("{{ level }}");
+        
+
+        // 1. Check karo kitne cells bhare hue hain
+        for (let id in gridData) {
+            const element = document.getElementById(id);
+            // Agar cell ka background color khali nahi hai, matlab wo filled hai
+            if (element && element.style.backgroundColor !== "") {
+                filledCells++;
+            }
+        }
+
+        // 2. Check karo kitne raste (paths) poore ho gaye hain
+        colors.forEach(clr => {
+            const dots = Object.keys(gridData).filter(id => gridData[id].hasDot && gridData[id].color === clr);
+            if (dots.length >= 2) {
+                const startDotEl = document.getElementById(dots[0]);
+                const endDotEl = document.getElementById(dots[1]);
+
+                // Agar dono dots ka color same hai (matlab rasta jud gaya hai)
+                if (startDotEl.style.backgroundColor !== "" &&
+                    startDotEl.style.backgroundColor === endDotEl.style.backgroundColor) {
+                    completedPaths++;
+                }
+            }
+        });
+
+        // 3. Final Check: Saare dabba bhare hain aur saare raste jud gaye hain?
+        if (filledCells === totalCells && completedPaths === targetPaths) {
+            stopTimer(); // Timer ko roko
+            
+            clearInterval(timerInterval);
+            console.log(currentLevelNumber, gridSize, moves, totalSeconds)
+            saveGameResult(currentLevelNumber, gridSize, moves, totalSeconds)
+            // Chota sa delay taaki last line draw hote hue dikhe
+            setTimeout(() => {
+                const timeTaken = document.getElementById('timer').innerText;
+                const modalPara = document.querySelector('.modal-content p');
+
+                // Stats ko modal mein update karna
+                if (modalPara) {
+                    modalPara.innerHTML = `Aapne <b>${gridSize}x${gridSize}</b> Level ko <br>
+                                           <b>${moves} moves</b> mein <b>${timeTaken}</b> <br>
+                                           samay mein poora kiya! 👑`;
+                }
+
+                // Modal dikhao
+                
+                document.getElementById('win-modal').style.display = 'flex';
+                
+            }, 300);
+
+        } else {
+            // Console mein progress dikhayega debugging ke liye
+            console.log(`Progress: ${filledCells}/${totalCells} cells, ${completedPaths}/${targetPaths} paths.`);
+        }
+    }
+
+        // 5. Aapka Exact handleCellClick Function
+        function handleCellClick(id) {
+            const cell = gridData[id];
+            const element = document.getElementById(id);
+
+            if (isDrawing && cell.hasDot && cell.color === selectedColor && id !== startCellId) {
+                if (isAdjacent(lastHoveredId, id)) {
+                    element.style.backgroundColor = pathColors[selectedColor];
+                    isDrawing = false;
+                    isTargetReached = false;
+                    selectedColor = null;
+                    startCellId = null;
+                    lastHoveredId = null;
+                    checkWin();
+                }
+                return;
+            }
+
+            if (cell.hasDot) {
+                moves++;
+                document.getElementById('move-count').innerText = moves;
+
+                // Timer pehli move par shuru hoga
+                if (!startTime) {
+                    startTimer();
+                }
+                clearPathByColor(cell.color);
+                selectedColor = cell.color;
+                startCellId = id;
+                lastHoveredId = id;
+                isDrawing = true;
+                isTargetReached = false;
+                element.style.backgroundColor = pathColors[selectedColor];
+            }
+        }
+
+        // 6. Aapka Exact handleHover Function
+        function handleHover(id) {
+            if (!isDrawing || !selectedColor || isTargetReached) return;
+            if (!isAdjacent(lastHoveredId, id)) return;
+
+            const cell = gridData[id];
+            const element = document.getElementById(id);
+
+            if (cell.color !== "" && cell.color !== selectedColor) {
+                clearPathByColor(cell.color);
+            }
+
+            if (cell.hasDot) {
+                if (cell.color === selectedColor && id !== startCellId) {
+                    element.style.backgroundColor = pathColors[selectedColor];
+                    lastHoveredId = id;
+                    isTargetReached = true;
+                }
+                return;
+            }
+
+            element.style.backgroundColor = pathColors[selectedColor];
+            gridData[id].color = selectedColor;
+            lastHoveredId = id;
+        }
+
+        // 7. Aapka Exact isAdjacent (Modified for safety)
+        function isAdjacent(id1, id2) {
+            if (!id1 || !id2) return false;
+            // Yeh tarika 5x5 aur 8x8 dono ke liye sahi coordinate nikalta hai
+            let r1 = parseInt(id1.substring(0, id1.length - 1)), c1 = parseInt(id1.slice(-1));
+            let r2 = parseInt(id2.substring(0, id2.length - 1)), c2 = parseInt(id2.slice(-1));
+            return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
+        }
+
+        // 8. Aapka Exact clearPathByColor Function
+        function clearPathByColor(colorToClear) {
+            if (!colorToClear) return;
+            for (let id in gridData) {
+                if (gridData[id].color === colorToClear) {
+                    const el = document.getElementById(id);
+                    if (el) el.style.backgroundColor = "";
+                    if (!gridData[id].hasDot) {
+                        gridData[id].color = "";
+                    }
+                }
+            }
+        }
+
+        // 9. Aapka Exact setupDots Function
+        function setupDots(config) {
+            for (let id in config) {
+                const targetCell = document.getElementById(id);
+                if (targetCell && gridData[id]) {
+                    const dot = document.createElement('span');
+                    dot.className = 'dot';
+                    dot.style.backgroundColor = config[id];
+                    targetCell.appendChild(dot);
+                    gridData[id].hasDot = true;
+                    gridData[id].color = config[id];
+                }
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return; // Dobara start na ho jaye
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                let minutes = Math.floor(totalSeconds / 60);
+                let seconds = totalSeconds % 60;
+
+                // Live UI update (base/play.html ke timer id ko pakdega)
+                document.getElementById('timer').innerText =
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            
+        }
+
+        function saveGameResult(levelNum, size, movesCount, timeInSeconds) {
+            // 1. Data check (console mein dekho ki sahi data ja raha hai ya nahi)
+            console.log("Saving Progress:", { levelNum, size, movesCount, timeInSeconds });
+
+            // 2. Data bundle taiyar karo
+            const gameData = {
+                level_number: parseInt(levelNum),
+                grid_size: parseInt(size),
+                moves: parseInt(movesCount),
+                time_taken: parseInt(timeInSeconds)
+            };
+
+            // 3. Django CSRF Token (Template se uthayega)
+            const csrftoken = "{{ csrf_token }}";
+
+            // 4. Fetch API call
+            fetch("/user/save-progress/", {  // <--- Ensure karein ye URL wahi hai jo urls.py mein hai
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(gameData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Success! Data saved in DB:", data);
+            })
+            .catch((error) => {
+                console.error('Bhai error aa gaya:', error);
+            });
+        }
+
+        // 10. Page Load par start
+        document.addEventListener('DOMContentLoaded', () => {
+            generateGrid(gridSize, gridSize);
+            setupDots(backendDots);
+        });
+  </script>
+  {% endblock %}
+</div>

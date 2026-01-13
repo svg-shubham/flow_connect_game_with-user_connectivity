@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="glass-card signup-card">
+        <h2 class="auth-title">Join <span class="cyan">Flow Connect</span></h2>
+        <p class="auth-subtitle">Create your account to save game progress</p>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    {% render_field form.first_name class="auth-input" placeholder="Rahul" %}
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    {% render_field form.last_name class="auth-input" placeholder="Sharma" %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                {% render_field form.email class="auth-input" placeholder="rahul@example.com" %}
+            </div>
+
+            <div class="form-group">
+                <label>Username (Unique)</label>
+                {% render_field form.username class="auth-input" placeholder="rahul_pro" %}
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                  <label>Password</label>
+                  {% render_field form.password1 class="auth-input" placeholder="••••••••" %}
+              </div>
+
+              <div class="form-group">
+                  <label>Confirm Password</label>
+                  {% render_field form.password2 class="auth-input" placeholder="••••••••" %}
+              </div>
+          </div>
+
+            <button type="submit" class="btn-action reset">Create My Account 🚀</button>
+        </form>
+
+        <p class="footer-text">Already a player? <a href="{% url 'user:login' %}">Log In</a></p>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .signup-card {
+        width: 100%;
+        max-width: 550px;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    .auth-title { text-align: center; color: white; margin-bottom: 5px; }
+    .cyan { color: #00d2ff; }
+    .auth-subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+
+    /* Alignment Fix */
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    .auth-input {
+        background: rgba(255, 252, 252, 0.55);
+        border: 1px solid #444;
+        padding: 12px 15px;
+        border-radius: 10px;
+        color: black;
+        transition: 0.3s;
+    }
+    .auth-input:focus {
+        border-color: #00d2ff;
+        outline: none;
+        box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+    }
+    .btn-signup {
+        width: 100%;
+        padding: 15px;
+        background: #00d2ff;
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    .footer-text { text-align: center; color: #666; margin-top: 20px; }
+    .footer-text a { color: #00d2ff; text-decoration: none; }
+
+    /* Mobile Responsive */
+    @media (max-width: 500px) {
+        .form-row { flex-direction: column; gap: 0; }
+    }
+</style>
+{% endblock %}
